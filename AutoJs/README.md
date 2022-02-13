@@ -7,7 +7,7 @@
 1. [WEditor](https://github.com/alibaba/web-editor) ; 可以用于获取控件信息   
 2. [Uiautomator2](https://github.com/openatx/uiautomator2);是一个Python下的自动化工具，可以用于操作手机。    
 > 我自己Python虽然是0基础，但通过几天的学习，简单的写了一个学习强国自动化的工具。目前不是很完善  
-> [点击查看代码：自动学习强国](https://e.gitee.com/gzgcxy-study/repos/gzgcxy-study/no-end-for-learning/tree/master/AutoJs/u2/u2_test)  
+> [点击查看代码：自动学习强国](https://github.com/xuanu/no-end-for-learning/tree/master/AutoJs/u2/u2_test)  
 > 目前完成功能：
 > 1. 阅读文章、观看视频、本地频道  
 > 2. 每日答题、每周答题、专项答题、挑战答题    
