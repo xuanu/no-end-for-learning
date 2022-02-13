@@ -6,16 +6,16 @@ _db.openDb('data.db')  # 数据库
 def init():
     #表是否创建
     #查询表是否存在！table_read_page
-    _db.createTables("create table if not exists table_read_page(title text)")
+    _db.createTables("create table if not exists table_read_page(title text,device text)")
     _db.createTables("create table if not exists table_question(type text,question text,answer text)")
 #这个标题有没有看过
-def isRead(title):
-    result = _db.executeSql("select count(title) from table_read_page  where title='"+title+"'")
+def isRead(title,device):
+    result = _db.executeSql("select count(title) from table_read_page  where title='"+title+"' and device = '"+device+"'")
     return result[1][0][0] > 0
 
 #没看过就添加到数据库
-def addRead(title):
-    _db.executeSql("insert into table_read_page(title) values('"+title+"')")
+def addRead(title,device):
+    _db.executeSql("insert into table_read_page(title,device) values('"+title+"','"+device+"')")
 
 def hasQuesion(type,left_ques):
     return _db.executeSql("select type,answer from table_question where type ='"+type+"' and question like '%"+left_ques+"%'")

@@ -98,8 +98,10 @@ import uiautomator2 as u2
 
 def debugCode():
     mu.init()
+    mu.test()
+    # mu.readArticle(6, 1, 1)
     # mu.startXuexi()
-    mu.fourFight()
+    # mu.fourFight()
     # mu.twoFight()
     # mu.dayQuestion()
     # mu.weekQuesion()
@@ -112,7 +114,7 @@ def debugCode():
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-   rightCode()
-    # debugCode()
+   # rightCode()
+    debugCode()
 
 

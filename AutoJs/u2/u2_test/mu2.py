@@ -289,17 +289,17 @@ def readArticle(count, need_comment=None, need_share=None):
         # //*[@text="筑铜墙铁壁 护国泰民安——2021“最美基层民警”群像（下）"]
         findEl = d(resourceId="cn.xuexi.android:id/general_card_title_id", className="android.widget.TextView")
         while len(findEl) == 0:
-            d.swipe_ext("up") #TODO 有时候上滑会出错，加载不出新文章
+            d.swipe_ext("up")
             upNum += 1
             log("正在上滑查找……")
-            if upNum > 30:
+            if upNum > 20:
                 break
             time.sleep(2)
             findEl = d(resourceId="cn.xuexi.android:id/general_card_title_id", className="android.widget.TextView")
         # 如果看过的，也要往上滑
         for el in findEl:
             titleTxt = el.get_text()
-            if db.isRead(titleTxt): #试一下，重复看一篇文章会不会得分!
+            if db.isRead(titleTxt, d.serial): #试一下，重复看一篇文章会不会得分!
                 continue
             if tmpreadcount >= count:
                 break
@@ -309,11 +309,13 @@ def readArticle(count, need_comment=None, need_share=None):
             el.click()
             time.sleep(2)
             readOneArticle(str(tmpreadcount) + "/" + str(count), need_comment, need_share)  # 阅读文章
-            db.addRead(titleTxt)
+            db.addRead(titleTxt, d.serial)
             tmpreadcount += 1
         # 接着往上滑，找
         d.swipe_ext("up")
         upNum += 1
+        if upNum > 20:#先尝试下滑一次
+            d.swipe_ext("down")
         if upNum > 30:
             log("异常结束！上滑超过30次，可能是网络原因！没有加载出文章，也有可能是滑动的原因！")
             break
@@ -982,12 +984,13 @@ def dayQuestion():
 def test():
     log("test!")
     print(d.info)
+    print(d.serial)
     screen_height = d.info.get("displayHeight")
     screen_width = d.info.get("displayWidth")
     # list_view = d.xpath("//android.widget.ListView")
     # print(d.xpath(list_view.all()[0].get_xpath() + "/android.view.View[1]/android.view.View[1]").all()[0].info)
-    img = d(text="新思想").screenshot()
-    print(_reader.readtext(img))
+    # img = d(text="新思想").screenshot()
+    # print(_reader.readtext(img))
 
 
 # 答一组题
