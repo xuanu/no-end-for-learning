@@ -134,7 +134,7 @@ def to_scroe():
     return True
 
 
-def getScroe():
+def getScroe():  # 有BUG，有的手机需要滑到控件，才能获取分数
     # 0 读多少文章
     # 1 看视频数量
     # 2 每日答题
@@ -148,42 +148,43 @@ def getScroe():
     # 10 双人对战
     need_do = []
     if to_scroe():
+        d(scrollable=True).scroll.to(text="强国运动")
         # 获取积分.
         need_do.append(12 - int(get_score_from_txt(
-            d.xpath('//android.widget.ListView/android.view.View[2]/android.view.View[3]').get_text())))
+            d.xpath('//android.widget.ListView/android.view.View[2]/android.view.View[3]').all()[0])))
         video_num_1 = get_score_from_txt(
-            d.xpath('//android.widget.ListView/android.view.View[3]/android.view.View[3]').get_text())
+            d.xpath('//android.widget.ListView/android.view.View[3]/android.view.View[3]').all()[0])
         video_num_2 = get_score_from_txt(
-            d.xpath('//android.widget.ListView/android.view.View[4]/android.view.View[3]').get_text())
+            d.xpath('//android.widget.ListView/android.view.View[4]/android.view.View[3]').all()[0])
         need_do.append(6 - int(max(video_num_1, video_num_2)))
         # #答题只要得分了，就不做了，不重复进行。
         need_do.append(5 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[5]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[5]/android.view.View[3]').all()[0])))
         need_do.append(5 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[6]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[6]/android.view.View[3]').all()[0])))
         need_do.append(10 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[7]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[7]/android.view.View[3]').all()[0])))
         need_do.append(1 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[12]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[12]/android.view.View[3]').all()[0])))
         need_do.append(1 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[13]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[13]/android.view.View[3]').all()[0])))
         need_do.append(1 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[14]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[14]/android.view.View[3]').all()[0])))
         need_do.append(6 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[8]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[8]/android.view.View[3]').all()[0])))
         need_do.append(5 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[9]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[9]/android.view.View[3]').all()[0])))
         need_do.append(2 -
                        int(get_score_from_txt(
-                           d.xpath('//android.widget.ListView/android.view.View[10]/android.view.View[3]').get_text())))
+                           d.xpath('//android.widget.ListView/android.view.View[10]/android.view.View[3]').all()[0])))
     else:
         need_do = [12, 6, 5, 5, 10, 1, 1, 1, 6, 5, 2]
     debug(need_do)
@@ -197,7 +198,11 @@ def getScroe():
     return need_do
 
 
-def get_score_from_txt(text):
+def get_score_from_txt(uis):
+    # while not visable_to_user(uis):
+    #     d.swipe_ext("up")
+    text = uis.info.get("text")
+    log("分数：" + text)
     return text[2:index_of_str(text, "分")[0]:]
 
 
@@ -299,7 +304,7 @@ def readArticle(count, need_comment=None, need_share=None):
         # 如果看过的，也要往上滑
         for el in findEl:
             titleTxt = el.get_text()
-            if db.isRead(titleTxt, d.serial): #试一下，重复看一篇文章会不会得分!
+            if db.isRead(titleTxt, d.serial):  # 试一下，重复看一篇文章会不会得分!
                 continue
             if tmpreadcount >= count:
                 break
@@ -314,7 +319,7 @@ def readArticle(count, need_comment=None, need_share=None):
         # 接着往上滑，找
         d.swipe_ext("up")
         upNum += 1
-        if upNum > 20:#先尝试下滑一次
+        if upNum > 20:  # 先尝试下滑一次
             d.swipe_ext("down")
         if upNum > 30:
             log("异常结束！上滑超过30次，可能是网络原因！没有加载出文章，也有可能是滑动的原因！")
@@ -459,6 +464,18 @@ def watchVide(count):
     log("---------------------------看视频结束！")
     # 这里要点击一下学习的按钮
 
+def not_scroe(dis):
+    # 专项答题，有答过，但是没得分的。
+    # print(d(text="重新答题").info)
+    for el in dis:
+        # print("-------------------")
+        brs = el.sibling(className="android.view.View")
+        if len(brs) != 0:
+            txt = brs[0].info.get("text")
+            if not txt.endswith("积分"):
+                return el
+    return None
+
 
 # 专项答题 只答一次
 def specialty_question():
@@ -486,9 +503,13 @@ def specialty_question():
             has_question = True
             d(text="开始答题").click()
             break
-        elif d(text="继续答题").exists and visable_to_user(d(text="继续答题")):
+        elif d(text="继续答题").exists and visable_to_user(d(text="继续答题")) and not_scroe(d(text="继续答题")) is not None:
             has_question = True
-            d(text="继续答题").click()
+            not_scroe(d(text="继续答题")).click()
+            break
+        elif d(text="重新答题").exists and visable_to_user(d(text="重新答题")) and not_scroe(d(text="重新答题")) is not None:
+            has_question = True
+            not_scroe(d(text="重新答题")).click()
             break
         elif d(text="您已经看到了我的底线").exists():
             log("没有可作答的每周答题了,退出!!!")
@@ -497,7 +518,11 @@ def specialty_question():
         else:
             d.swipe_ext("up")
     if has_question:
-        waitFor(d(text="查看提示"), "查看提示，标志进入答题界面！")
+        while True:
+            if d(textStartsWith="单选题").exists or d(textStartsWith="填空题").exists or d(textStartsWith="多选题").exists:
+                break
+            debug("未进入答题界面，可手动进入……")
+            d.sleep(1)
         last_question_index = -1
         while True:
             _result = answerAGroupQuestion(last_question_index)
@@ -505,7 +530,7 @@ def specialty_question():
             last_question_index = _result[1]
             if _result[0]:
                 d.sleep(5)
-            if d(text="本次作答分数").exists:
+            if d(text="本次作答分数").exists or d(textMatches=".+查看解析").exists:
                 break
     d.press("back")
     d.sleep(0.5)
@@ -530,6 +555,10 @@ def visable_to_user(uis):
     v_right = uis.info.get("bounds").get("right")
     v_bottom = uis.info.get("bounds").get("bottom")
     # 我发现明明查看提示只有2个像素，但是在界面上{'bottom': 1280, 'left': 546, 'right': 656, 'top': 1278}
+    debug("控件信息：")
+    debug(uis.info)
+    debug("控件坐标：" + str(v_left) + "," + str(v_top) + "||" + str(v_right) + "," + str(v_bottom))
+    debug("屏幕宽高：" + str(screen_width) + "," + str(screen_height))
     return v_bottom - v_top > 2 and v_left <= screen_width and v_top <= screen_height and v_bottom <= screen_height and v_right <= screen_width
 
 
@@ -577,12 +606,11 @@ def weekQuesion():
         else:
             d.swipe_ext("up")
     if has_question:
-        tip_lable = d(text="查看提示")
-        while not tip_lable.exists:
+        # tip_lable = d(text="查看提示")
+        while True:
+            if d(textStartsWith="单选题").exists or d(textStartsWith="填空题").exists or d(textStartsWith="多选题").exists:
+                break
             debug("未进入答题界面……，可能是网络错误，再等等，以后再想办法处理")
-            if d(resourceId="cn.xuexi.android:id/textSpacerNoTitle").exists:
-                debug("网络错误……请手动进答题界面……")
-                d(resourceId="cn.xuexi.android:id/buttonPanel").click()
             d.sleep(1)
         last_question_index = -1
         while True:
@@ -750,7 +778,8 @@ def answer_fight(last_a_option, title_re):
         print("###未搜索到正确答案，随机选择……")
         btns = d(className="android.widget.ListView").child(className="android.widget.RadioButton")
         btn_count = len(btns)
-        btns[random.randint(0, btn_count - 1)].click()
+        if btn_count != 0:
+            btns[random.randint(0, btn_count - 1)].click()
     return
 
 
@@ -815,6 +844,9 @@ def getFightTitle(last_a_option):
         if d(text="继续挑战").exists:
             return []
     # 四人赛
+    d.sleep(2)
+    if d(text="继续挑战").exists:
+        return []
     file_dir = "./screenshot/"
     if not os.path.exists(file_dir):
         os.mkdir(file_dir)
@@ -843,6 +875,7 @@ def getFightTitle(last_a_option):
     # 一定要识别出来一个，就算是错的，因为选项有时候出来的快，
     if d(text="继续挑战").exists:
         return []
+    d.sleep(2)
     child_find_list = d.xpath(
         list_view.get_xpath() + "/android.view.View[1]/android.view.View[1]").all()
     while len(child_find_list) == 0:
@@ -949,12 +982,10 @@ def dayQuestion():
         debug("未找到每日答题……重试中")
         d.sleep(1)
     txt_say_qu.click()
-    tip_lable = d(text="查看提示")
-    while not tip_lable.exists:
+    while True:
+        if d(textStartsWith="单选题").exists or d(textStartsWith="填空题").exists or d(textStartsWith="多选题").exists:
+            break
         debug("未进入答题界面……，可能是网络错误，再等等，以后再想办法处理")
-        if d(resourceId="cn.xuexi.android:id/textSpacerNoTitle").exists:
-            debug("网络错误……请手动进答题界面……")
-            d(resourceId="android:id/button1").click()
         d.sleep(1)
     last_question_index = -1
     while True:
@@ -983,27 +1014,57 @@ def dayQuestion():
 
 def test():
     log("test!")
-    print(d.info)
-    print(d.serial)
+    # print(d.info)
+    # print(d.serial)
     screen_height = d.info.get("displayHeight")
     screen_width = d.info.get("displayWidth")
     # list_view = d.xpath("//android.widget.ListView")
     # print(d.xpath(list_view.all()[0].get_xpath() + "/android.view.View[1]/android.view.View[1]").all()[0].info)
     # img = d(text="新思想").screenshot()
     # print(_reader.readtext(img))
+    # print(d.xpath('//android.widget.ListView/android.view.View[5]/android.view.View[3]').all()[0].info)
+    # els = d(className="android.widget.ListView").child(index=4).child()
+    # for el in els:
+    #     print(el.info)
+    # el = d(text="发表观点")
+    # d(scrollable=True).scroll.to(el)
+    # text = "+9积分123456"
+    # sr = re.search("\+[0-9]+积分", text)
+    # print(sr)
+    # print(d(textMatches=".+查看解析").exists)
+    # for el in :
+    #     print(el.info)
+
+def scrollTo(uio):
+    return
+    # 实测没啥用，某些页面有用。
+    # 滑到指定控件，这个控件一定要有text ,否则就失败
+    # txt = uio.info.get("text")
+    # if len(txt) == 0:
+    #     return
+    # d(scrollable=True).scroll.to(text=txt)
 
 
 # 答一组题
 def answerAGroupQuestion(_last_index):
+    # 回答一组题：有特别情况：继续答题时，有可能一进入就是准备下题题。
     log("开始答题……上一题序号：" + str(_last_index))
     _type = "填空题"
     _question = ""
     # 滑动到查看提示
-    waitFor(d(text="查看提示"), "查看提示")
     index_str = ""
     step_index = 0
-    total_question = 0
-    if d(textStartsWith="填空题").exists and visable_to_user(d(textStartsWith="填空题")):
+    total_question = -1
+    while True:
+        if d(textStartsWith="填空题").exists or d(textStartsWith="单选题").exists() or d(textStartsWith="多选题").exists():
+            break
+        debug("未找到题目，请等待，或手动进入答题界面")
+        d.sleep(1)
+    if d(text="确定", className="android.view.View") \
+            or d(text="下一题").exists \
+            or d(text="完成").exists:
+        debug("一进入 就是下一题")
+    elif d(textStartsWith="填空题").exists and visable_to_user(d(textStartsWith="填空题")):
         _type = "填空题"
         index_str = d(textStartsWith="填空题").sibling(className="android.view.View", index=1).get_text()
         print("序号：" + index_str)
@@ -1085,6 +1146,7 @@ def answerAGroupQuestion(_last_index):
             for t_ui in tmp_list.child(className=find_class_name):
                 answer_str = t_ui.sibling(className="android.view.View")[1].get_text()
                 if answer_str in _result_json:
+                    scrollTo(t_ui)
                     t_ui.click(1)
                     click_num += 1
         else:
@@ -1094,16 +1156,18 @@ def answerAGroupQuestion(_last_index):
             if list_count == space_num:  # 空格数和选项数量相等，直接选择。
                 for cel in tmp_list.child(className="android.widget.CheckBox"):
                     click_num += 1
+                    scrollTo(cel)
                     cel.click()  # 一一选中
             else:
                 tmptipstr = getTipStr()
-                if (space_num == 1):
+                if space_num == 1:
                     find_class_name = "android.widget.RadioButton"
                 else:
                     find_class_name = "android.widget.CheckBox"
                 for t_ui in tmp_list.child(className=find_class_name):
                     answer_str = t_ui.sibling(className="android.view.View")[1].get_text()
                     if answer_str in tmptipstr:
+                        scrollTo(t_ui)
                         t_ui.click(1)
                         click_num += 1
         if click_num == 0:  # 一个都没选，随便选一个
@@ -1137,10 +1201,17 @@ def getTipStr():
     debug("准备获取提示……")
     waitFor(d(text="查看提示"), "查看提示").click()
     waitFor(d(text="提示"), "提示布局")
+    d.sleep(2)
     tmptip = d.xpath('//*[@text="提示"]').all()[0]
-    tmpclose = d.xpath(tmptip.parent().get_xpath() + "/android.view.View[2]")
-    tmptipstr = d.xpath(tmptip.parent().parent().get_xpath() + "/android.view.View[2]/android.view.View[1]").get_text()
-    tmpclose.click_exists(1)
+    tip_par = tmptip.parent()
+    # print(tip_par.attrib)
+    tmptipstr = d.xpath(tip_par.parent().get_xpath() + "/android.view.View[2]/android.view.View[1]").get_text()
+    while d(text="提示").exists:
+        x = tmptip.info.get("bounds").get("left")
+        y = tip_par.info.get("bounds").get("top")-80
+        d.click(x, y)
+        debug("提示还未关闭，尝试关闭:"+str(x)+","+str(y))
+        d.sleep(1)
     return tmptipstr
 
 
