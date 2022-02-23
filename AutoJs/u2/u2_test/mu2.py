@@ -382,9 +382,7 @@ def readOneArticle(progress, need_comment=None, need_share=None):  # 阅读一�
         sharePageAndCollect()
         _shareCount = _shareCount + 1
     d.press("back")
-    # 如果没返回，下面这句应该生效
-    if d(resourceId="cn.xuexi.android:id/TOP_LAYER_VIEW_ID").exists:
-        d(resourceId="cn.xuexi.android:id/TOP_LAYER_VIEW_ID").child(className="android.widget.ImageView")[0].click()
+    d.sleep(2)
 
 
 # 分享加收藏
