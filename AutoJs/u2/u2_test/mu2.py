@@ -1,5 +1,6 @@
 import json
 import random
+import string
 
 import uiautomator2 as u2
 import time
@@ -31,14 +32,16 @@ def init():
 
 def log(txt):
     print(txt)
-    # d.toast.show(str(txt), 0.1)
+    if isinstance(txt,str):
+        d.toast.show(str(txt), 0.5)
     return
 
 
 # 用于输出调试日志
 def debug(txt):
     print(txt)
-    # d.toast.show(str(txt), 0.1)
+    if isinstance(txt,str):
+        d.toast.show(str(txt), 0.5)
     return
 
 
@@ -82,6 +85,7 @@ def click_local():
         debug("不在主页,先等待看，可以手动进入主页……")
         time.sleep(1)
     d(resourceId="cn.xuexi.android:id/home_bottom_tab_button_work").click()
+    d.sleep(1)
     refresh_view = d.xpath(
         '//*[@resource-id="cn.xuexi.android:id/view_pager"]/android.widget.FrameLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.widget.FrameLayout[1]/android.widget.FrameLayout[2]/android.widget.LinearLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.widget.ImageView[1]')
     waitForGone(refresh_view)
@@ -236,6 +240,7 @@ def challenge_question():
             option = el.sibling(className="android.view.View").get_text()
             if right_answer == option or right_answer == "###" or rightNum > maxAnswer:
                 el.click()
+                d.sleep(1)
                 break
         log("延时5秒，检查是否答对！")
         d.sleep(5)
@@ -278,6 +283,7 @@ def readArticle(count, need_comment=None, need_share=None):
         debug("不在主页，重试中……可手动进入启动页面")
         d.sleep(1)
     d(resourceId="cn.xuexi.android:id/home_bottom_tab_button_work").click_exists(3)
+    d.sleep(1)
     d.xpath(
         '//*[@resource-id="cn.xuexi.android:id/view_pager"]/android.widget.FrameLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.widget.FrameLayout[1]/android.widget.FrameLayout[2]/android.widget.LinearLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.widget.ImageView[1]').wait_gone()
     # 阅读文章时，在推荐，要闻，新思想和综合随机选择
@@ -286,6 +292,7 @@ def readArticle(count, need_comment=None, need_share=None):
         log("未找到关键字：" + tmpRandomTitle + ",再次随机生成中……")
         tmpRandomTitle = _randomReadTitle[random.randint(0, len(_randomReadTitle) - 1)]
     d(text=tmpRandomTitle).click_exists(3)
+    d.sleep(1)
     d.xpath(
         '//*[@resource-id="cn.xuexi.android:id/view_pager"]/android.widget.FrameLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.view.ViewGroup[1]/android.widget.FrameLayout[1]/android.widget.FrameLayout[2]/android.widget.LinearLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.widget.ImageView[1]').wait_gone()
     tmpreadcount = 0
@@ -462,6 +469,7 @@ def watchVide(count):
     log("---------------------------看视频结束！")
     # 这里要点击一下学习的按钮
 
+
 def not_scroe(dis):
     # 专项答题，有答过，但是没得分的。
     # print(d(text="重新答题").info)
@@ -571,7 +579,9 @@ def weekQuesion():
         debug("未找到我要答题按钮，正在重试……")
         d.sleep(1)
     want_to_answer.click()
+    d.sleep(1)
     d(text="立即答题").click_exists(2)
+    d.sleep(1)
     txt_say_qu = d(text="每周答题")
     while not txt_say_qu.exists:
         debug("未找到每周答题……重试中")
@@ -1033,6 +1043,7 @@ def test():
     # for el in :
     #     print(el.info)
 
+
 def scrollTo(uio):
     return
     # 实测没啥用，某些页面有用。
@@ -1206,9 +1217,9 @@ def getTipStr():
     tmptipstr = d.xpath(tip_par.parent().get_xpath() + "/android.view.View[2]/android.view.View[1]").get_text()
     while d(text="提示").exists:
         x = tmptip.info.get("bounds").get("left")
-        y = tip_par.info.get("bounds").get("top")-80
+        y = tip_par.info.get("bounds").get("top") - 80
         d.click(x, y)
-        debug("提示还未关闭，尝试关闭:"+str(x)+","+str(y))
+        debug("提示还未关闭，尝试关闭:" + str(x) + "," + str(y))
         d.sleep(1)
     return tmptipstr
 
